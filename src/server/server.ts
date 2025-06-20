@@ -174,6 +174,14 @@ Room.rebuildTypes();
 
 Logger.info(`Initialized room ${Room.width}x${Room.height}.`);
 
+class Definitions {
+
+}
+
+class Mockups {
+
+}
+
 class IO {
 
 }
@@ -191,6 +199,10 @@ class Health {
 }
 
 class Entity {
+
+}
+
+class Server {
 
 }
 
