@@ -1,8 +1,10 @@
+import { GameSpeed } from "./config";
+
 enum LogLevel {
 	Info = 2,
 	Warn = 1,
 	Error = 0
-}
+};
 
 class Logger {
 	public static level: LogLevel = LogLevel.Info;
@@ -105,7 +107,7 @@ type GameMode = "ffa" | "tdm";
 
 class Room {
 	public static lastCycle: number = performance.now();
-	public static cycleSpeed: number = 1000 / 30;
+	public static cycleSpeed: number = 1000 / GameSpeed / 30;
 	public static width: number = 2000;
 	public static height: number = 2000;
 	public static layout: RoomCellType[][] = [
@@ -120,27 +122,22 @@ class Room {
 	public static cellHeight: number = this.height / this.ygrid;
 	public static gameMode: GameMode = "tdm";
 	public static topPlayerID: number = -1;
-	private static cellTypes: Map<string, Vector[]> = new Map<string, Vector[]>();
+	private static cellTypeCenters: Map<string, Vector[]> = new Map<string, Vector[]>();
 
-	public static isInside(position: Vector): boolean {
-		return position.x >= 0 && position.y >= 0 && position.x < this.width && position.y < this.height;
-
-	}
-
-	public static rebuildTypes(): void {
-		this.cellTypes.clear();
+	public static rebuildCellTypeCenters(): void {
+		this.cellTypeCenters.clear();
 		for (let y: number = 0; y < this.ygrid; y++) {
 			const row: RoomCellType[] = this.layout[y];
 			for (let x: number = 0; x < this.xgrid; x++) {
 				const cell: RoomCellType = row[x];
 				for (let i: number = 0; i < RoomCellTypes.length; i++) {
 					if (cell === RoomCellTypes[i]) {
-						const cells = this.cellTypes.get(cell);
-						const vector = new Vector(this.cellWidth * (x + 0.5), this.cellHeight * (y + 0.5));
-						if (cells === undefined) {
-							this.cellTypes.set(cell, [vector]);
+						const cellCenters: Vector[] | undefined = this.cellTypeCenters.get(cell);
+						const vector: Vector = new Vector(this.cellWidth * (x + 0.5), this.cellHeight * (y + 0.5));
+						if (cellCenters === undefined) {
+							this.cellTypeCenters.set(cell, [vector]);
 						} else {
-							cells.push(vector);
+							cellCenters.push(vector);
 						}
 					}
 				}
@@ -148,29 +145,33 @@ class Room {
 		}
 	}
 
-	public static getRandom(): Vector {
+	public static getRandomLocation(): Vector {
 		return new Vector(this.width * Math.random(), this.height * Math.random());
 	}
 
-	public static getRandomType(type: RoomCellType): Vector {
-		const cells = this.cellTypes.get(type);
+	public static getRandomLocationType(type: RoomCellType): Vector {
+		const cells = this.cellTypeCenters.get(type);
 		if (cells === undefined) {
 			Logger.warn(`No cell type "${type}" is present in room. Falling back to random position.`);
-			return this.getRandom();
+			return this.getRandomLocation();
 		}
 		const cell = cells[Math.floor(Math.random() * cells.length)];
 		return new Vector(cell.x + (Math.random() - 0.5) * this.cellWidth, cell.y + (Math.random() - 0.5) * this.cellHeight);
 	}
 
-	public static isInCell(type: RoomCellType, location: Vector): boolean {
-		if (!this.isInside(location)) {
+	public static isInsideBounds(position: Vector): boolean {
+		return position.x >= 0 && position.y >= 0 && position.x < this.width && position.y < this.height;
+	}
+
+	public static isInCellType(type: RoomCellType, location: Vector): boolean {
+		if (!this.isInsideBounds(location)) {
 			return false;
 		}
 		return this.layout[Math.floor(location.y / this.cellHeight)][Math.floor(location.x / this.cellWidth)] === type;
 	}
 }
 
-Room.rebuildTypes();
+Room.rebuildCellTypeCenters();
 
 Logger.info(`Initialized room ${Room.width}x${Room.height}.`);
 
