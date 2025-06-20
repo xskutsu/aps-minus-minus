@@ -6,42 +6,52 @@ export enum LogLevel {
 }
 
 export class Logger {
-	public static level: LogLevel = LogLevel.Info;
-	public static throw: boolean = true;
-
-	public static getLevelName(): string {
-		return LogLevel[this.level];
+	private static timestamp(): string {
+		const now: Date = new Date();
+		return "\x1b[36m" + now.toLocaleString("sv-SE", {
+			hour12: false
+		}) + "." + now.getMilliseconds().toString().padStart(3, "0") + "\x1b[0m";
 	}
 
-	public static timestamp(): string {
-		return `(${new Date().toString()})`;
+	public static getLevelName(level: LogLevel): string {
+		return LogLevel[level];
 	}
 
-	public static verbose(message: string): void {
+	public throw: boolean = true;
+	public prefix: string;
+	public level: LogLevel;
+	constructor(tag: string = "Unknown", level: LogLevel = LogLevel.Info) {
+		this.prefix = ("[" + tag + "]").padEnd(10, " ");
+		this.level = level;
+	}
+
+	public verbose(message: string): void {
 		if (this.level <= LogLevel.Verbose) {
-			console.log(`${this.timestamp()} [INFO] ${message}`);
+			console.log(Logger.timestamp() + " \x1b[34m[VERBOSE] \x1b[0m" + this.prefix + message);
 		}
 	}
 
-	public static info(message: string): void {
-		if (this.level <= LogLevel.Verbose) {
-			console.log(`${this.timestamp()} [INFO] ${message}`);
+	public info(message: string): void {
+		if (this.level <= LogLevel.Info) {
+			console.log(Logger.timestamp() + " \x1b[37m[INFO]    \x1b[0m" + this.prefix + message);
 		}
 	}
 
-	public static warn(message: string): void {
-		if (this.level <= LogLevel.Verbose) {
-			console.warn(`${this.timestamp()} [WARNING] ${message}`);
+	public warn(message: string): void {
+		if (this.level <= LogLevel.Warn) {
+			console.log(Logger.timestamp() + " \x1b[33m[WARNING] \x1b[0m" + this.prefix + message);
 		}
 	}
 
-	public static error(message: string): void {
-		if (this.level <= LogLevel.Verbose) {
-			const fmessage: string = `${this.timestamp()} [ERROR] ${message}`;
+	public error(message: string): void {
+		if (this.level <= LogLevel.Error) {
+			const fmessage: string = Logger.timestamp() + " \x1b[31m[ERROR]   \x1b[0m" + this.prefix + message;
 			if (this.throw) {
 				throw new Error(fmessage);
 			} else {
 				console.error(fmessage);
+				console.trace("\x1b[90m" + message);
+				console.log("\x1b[0m");
 			}
 		}
 	}

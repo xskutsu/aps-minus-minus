@@ -1,3 +1,9 @@
-import { Logger } from "./core/logger";
+import { Logger, LogLevel } from "./core/logger";
 
-console.log(`Starting aps-minus-minus. Log level: ${Logger.getLevelName()}.`);
+const logger = new Logger("Demo", LogLevel.Verbose);
+logger.throw = false;
+
+logger.verbose("Some extra info...");
+logger.info("Some info.");
+logger.warn("Some warning!");
+logger.error("Some error!!!");

@@ -1,6 +1,8 @@
 import { Logger } from "../core/logger";
 import { Vector } from "../core/vector";
 
+const logger = new Logger("Room");
+
 export enum Mode {
 	FFA,
 	TDM,
@@ -23,10 +25,10 @@ export class Room {
 		rawLayout = rawLayout.trim();
 		for (const rawRow of rawLayout.split("\n")) {
 			const row: CellType[] = [];
-			for (const cell of rawLayout.split("")) {
+			for (const cell of rawRow.trim().split(/\s+/)) {
 				const cellType: CellType | undefined = map.get(cell);
 				if (cellType === undefined) {
-					Logger.error(`Failed to identify cell type "${cell}" from a room config.`);
+					logger.error(`Failed to identify cell type "${cell}" from a room config.`);
 				} else {
 					row.push(cellType);
 				}
@@ -81,7 +83,7 @@ export class Room {
 	public getRandomByType(type: CellType): Vector {
 		const centers = this.cellCentersMap.get(type);
 		if (centers === undefined) {
-			Logger.warn(`Cell type \"${type}\" not found. Using full-range random as fallback.`);
+			logger.warn(`Cell type \"${type}\" not found. Using full-range random as fallback.`);
 			return this.getRandom();
 		}
 		const center: Vector = centers[Math.floor(Math.random() * centers.length)];
@@ -117,4 +119,4 @@ export const room = new Room(5000, 5000, Room.parseRoomConfig(`
 ])));
 room.initializeCellCenters();
 
-Logger.info(`Room initialized.`);
+logger.info(`Room initialized.`);

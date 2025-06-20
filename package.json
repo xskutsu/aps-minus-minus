@@ -1,5 +1,34 @@
 {
-  "devDependencies": {
-    "@types/node": "^24.0.3"
-  }
+	"name": "aps-minus-minus",
+	"version": "1.0.0",
+	"description": "Sometimes to go forward, you need to go backwards.",
+	"main": "dist/aps-minus-minus-server.cjs.js",
+	"scripts": {
+		"clean": "rimraf dist",
+		"build": "pnpm run clean && node build.cjs",
+		"watch": "pnpm run clean && node build.cjs --watch",
+		"start": "node dist/aps-minus-minus-server.cjs.js"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/xskutsu/aps-minus-minus.git"
+	},
+	"author": {
+		"name": "xskutsu",
+		"url": "https://github.com/xskutsu"
+	},
+	"bugs": {
+		"url": "https://github.com/xskutsu/dynastrike"
+	},
+	"homepage": "https://github.com/xskutsu/dynastrike#readme",
+	"license": "TSEL-1.0-or-later",
+	"dependencies": {
+		"uWebSockets.js": "github:uNetworking/uWebSockets.js#v20.52.0"
+	},
+	"devDependencies": {
+		"@types/node": "^24.0.3",
+		"esbuild": "^0.25.5",
+		"rimraf": "^6.0.1",
+		"typescript": "^5.8.3"
+	}
 }
